@@ -244,6 +244,8 @@ wine tasting</textarea>
     </a>
   </section>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <script>
     let xItems=[], yItems=[];
     let rotX=0, rotY=0;
@@ -431,7 +433,7 @@ wine tasting</textarea>
           body: JSON.stringify({ app: x, niche: y })
         });
         const data = await r.json();
-        summaryEl.textContent = data.summary || "No summary returned.";
+        summaryEl.innerHTML = marked.parse(data.summary || "No summary returned.");
         summaryEl.classList.remove("placeholder");
       } catch (e) {
         summaryEl.textContent = `Failed to load summary. ${e.message}`;

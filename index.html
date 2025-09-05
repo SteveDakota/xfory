@@ -190,8 +190,8 @@
   </section>
 
   <section class="card exec-summary">
-    <h2>Business Model:</h2>
-    <div id="summary" class="placeholder">Design placeholder. After you connect a Cloudflare Worker, the exec summary will appear here.</div>
+    <h2>Don't worry, your co-founder is AI.</h2>
+    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
   <div class="lists-intro">
@@ -254,6 +254,7 @@ wine tasting</textarea>
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 
   <script>
     let xItems=[], yItems=[];
@@ -442,10 +443,8 @@ wine tasting</textarea>
           body: JSON.stringify({ app: x, niche: y })
         });
         const data = await r.json();
-        console.log('Raw summary:', data.summary); // Debug log
         const parsed = marked.parse(data.summary || "No summary returned.");
-        console.log('Parsed HTML:', parsed); // Debug log
-        summaryEl.innerHTML = parsed;
+        summaryEl.innerHTML = DOMPurify.sanitize(parsed);
         summaryEl.classList.remove("placeholder");
       } catch (e) {
         console.error('Summary fetch error:', e);
@@ -458,11 +457,6 @@ wine tasting</textarea>
 
     // init
     getLists(); redraw();
-
-    // Test markdown rendering
-    const testMarkdown = '**Test Markdown**\n- List item 1\n- List item 2\n\n`Code snippet`';
-    document.getElementById('summary').innerHTML = marked.parse(testMarkdown);
-    console.log('Test markdown output:', marked.parse(testMarkdown));
   </script>
   <script>
     /* 

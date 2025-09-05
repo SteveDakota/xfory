@@ -90,6 +90,15 @@
       padding:12px 14px; border-radius:10px;
       background:#fafbff; border: var(--border);
     }
+    #summary{
+      font-size:18px; 
+      line-height:1.5; 
+      color:#3b4452;
+    }
+    #summary.placeholder{ color:#7a8596 }
+    #summary strong { color: #111; }
+    #summary ul, #summary ol { padding-left: 20px; }
+    #summary li { margin-bottom: 8px; }
     #summary{ font-size:18px; line-height:1.5; color:#3b4452 }
     #summary.placeholder{ color:#7a8596 }
 
@@ -433,11 +442,15 @@ wine tasting</textarea>
           body: JSON.stringify({ app: x, niche: y })
         });
         const data = await r.json();
-        summaryEl.innerHTML = marked.parse(data.summary || "No summary returned.");
+        console.log('Raw summary:', data.summary); // Debug log
+        const parsed = marked.parse(data.summary || "No summary returned.");
+        console.log('Parsed HTML:', parsed); // Debug log
+        summaryEl.innerHTML = parsed;
         summaryEl.classList.remove("placeholder");
       } catch (e) {
+        console.error('Summary fetch error:', e);
         summaryEl.textContent = `Failed to load summary. ${e.message}`;
-        summaryEl.classList.add('placeholder');
+        summaryEl.classList.add("placeholder");
       }
     }
 

@@ -458,6 +458,11 @@ wine tasting</textarea>
 
     // init
     getLists(); redraw();
+
+    // Test markdown rendering
+    const testMarkdown = '**Test Markdown**\n- List item 1\n- List item 2\n\n`Code snippet`';
+    document.getElementById('summary').innerHTML = marked.parse(testMarkdown);
+    console.log('Test markdown output:', marked.parse(testMarkdown));
   </script>
   <script>
     /* 

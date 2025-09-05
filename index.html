@@ -427,8 +427,9 @@ wine tasting</textarea>
       try {
         const corsHeaders = {
           'Access-Control-Allow-Origin': 'https://xfory.vercel.app',
-          'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Max-Age': '86400'
         };
         const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {
           method: "POST",

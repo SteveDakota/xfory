@@ -424,20 +424,24 @@ wine tasting</textarea>
       const y = yItems[choice.iy];
       document.getElementById('result').textContent = `${x} for ${y}`;
 
-      // Placeholder text. Replace with your Cloudflare Worker call later.
-      summaryEl.textContent = `${x} for ${y} focuses on a clear, narrow workflow, ships a lightweight MVP, and layers paid automation for ${y}. Start with a single use case, capture a small but active market, then expand to adjacent needs once retention is strong. Revenue comes from subscription and usage-based add-ons.`;
-      summaryEl.classList.remove('placeholder');
-
-      /*
-      const r = await fetch('https://<your-worker-subdomain>.workers.dev/summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ app: x, niche: y })
-      });
-      const data = await r.json();
-      summaryEl.classList.remove('placeholder');
-      summaryEl.textContent = data.summary || 'No summary returned.';
-      */
+      try {
+        const corsHeaders = {
+          'Access-Control-Allow-Origin': 'https://xfory.vercel.app',
+          'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type'
+        };
+        const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {
+          method: "POST",
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          body: JSON.stringify({ app: x, niche: y })
+        });
+        const data = await r.json();
+        summaryEl.textContent = data.summary;
+        summaryEl.classList.remove('placeholder');
+      } catch (e) {
+        summaryEl.textContent = `Failed to load summary. ${e.message}`;
+        summaryEl.classList.add('placeholder');
+      }
     }
 
     document.getElementById('spinBtnTop').addEventListener('click', spinBoth);

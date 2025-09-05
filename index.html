@@ -430,10 +430,9 @@ wine tasting</textarea>
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ app: x, niche: y })
         });
-        if(!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
         const data = await r.json();
-        summaryEl.textContent = data.summary;
-        summaryEl.classList.remove('placeholder');
+        summaryEl.textContent = data.summary || "No summary returned.";
+        summaryEl.classList.remove("placeholder");
       } catch (e) {
         summaryEl.textContent = `Failed to load summary. ${e.message}`;
         summaryEl.classList.add('placeholder');

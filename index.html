@@ -425,17 +425,12 @@ wine tasting</textarea>
       document.getElementById('result').textContent = `${x} for ${y}`;
 
       try {
-        const corsHeaders = {
-          'Access-Control-Allow-Origin': 'https://xfory.vercel.app',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Max-Age': '86400'
-        };
         const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {
           method: "POST",
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ app: x, niche: y })
         });
+        if(!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
         const data = await r.json();
         summaryEl.textContent = data.summary;
         summaryEl.classList.remove('placeholder');
@@ -449,6 +444,36 @@ wine tasting</textarea>
 
     // init
     getLists(); redraw();
+  </script>
+  <script>
+    /* 
+    Cloudflare Worker should implement:
+
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': 'https://xfory.vercel.app',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    };
+
+    // Handle OPTIONS preflight
+    async function handleOptions(request) {
+      if (request.headers.get('Origin') !== 'https://xfory.vercel.app') {
+        return new Response(null, { status: 403 });
+      }
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    // Add to your worker handler:
+    if (request.method === 'OPTIONS') {
+      return handleOptions(request);
+    }
+
+    // Add CORS headers to all responses
+    const response = new Response(...);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    */
   </script>
 </body>
 </html>

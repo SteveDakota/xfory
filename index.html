@@ -125,10 +125,21 @@
     .sponsor.card{ padding:14px }
     .sponsor h3{ margin:0 0 8px 0; font-size:16px; color:#334155 }
     .banner{
-      width:100%; height:120px;
-      background:#fbfcfe; border:2px dashed rgba(0,0,0,.15);
-      border-radius:12px; display:flex; align-items:center; justify-content:center;
-      color:#64748b; font-weight:600;
+      width:100%;
+      height:auto;
+      min-height:120px;
+      background:#fbfcfe;
+      border:2px dashed rgba(0,0,0,.15);
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .banner img{
+      width:100%;
+      height:auto;
+      object-fit:cover;
     }
 
     @media (max-width:920px){

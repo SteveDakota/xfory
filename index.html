@@ -246,7 +246,7 @@
     }
   </style>
 
-  <!-- New list manager styles and legacy list UI hide -->
+  <!-- New list manager styles and hide legacy editor -->
   <style id="listManagerStyles">
     .lists-intro, .panel, .actions { display: none !important; }
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
@@ -371,7 +371,7 @@
     <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
-  <!-- Legacy Lists section (hidden by CSS but kept for wiring) -->
+  <!-- Legacy Lists (hidden by CSS, still wired) -->
   <div class="lists-intro" style="margin-top: 24px;">
     <h2>Edit or create your own lists. Like Mad Libs, but for startups.</h2>
   </div>
@@ -738,7 +738,6 @@ trying to sleep on airplanes</textarea>
     document.getElementById('applyBtn').addEventListener('click', ()=>{
       getLists();
       if (!validateLists()) return;
-      
       rotX=rotY=0; redraw();
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
       elBreakdown.textContent = '';
@@ -778,7 +777,6 @@ trying to sleep on airplanes</textarea>
           body: JSON.stringify({ app: x, niche: y, wants_quip: true })
         });
 
-        // Throw on non-2xx to surface Worker errors
         if (!r.ok) {
           const text = await r.text();
           throw new Error(`HTTP ${r.status} ${r.statusText}: ${text}`);
@@ -817,10 +815,10 @@ trying to sleep on airplanes</textarea>
     getLists(); redraw();
   </script>
 
-  <!-- Integration script wiring new list manager to legacy wheels -->
+  <!-- Integration script: new manager -> legacy lists -> wheels -->
   <script>
     (function(){
-      const MAX_LABEL = 60, MAX_ITEMS = 50;
+      const MAX_LABEL = 60, MAX_ITEMS = 50, MIN_ITEMS = 2;
       const clean = window.cleanList || function(text){
         const seen = new Set();
         return String(text || '')
@@ -833,10 +831,7 @@ trying to sleep on airplanes</textarea>
       };
 
       const categories = {
-        tech: {
-          emoji: '🏢',
-          title: 'Tech Giants',
-          content: `Uber
+        tech:{emoji:'🏢',title:'Tech Giants',content:`Uber
 Airbnb
 Netflix
 TikTok
@@ -855,12 +850,8 @@ Tinder
 YouTube
 WhatsApp
 Snapchat
-Amazon`
-        },
-        daily: {
-          emoji: '🏠',
-          title: 'Daily Activities',
-          content: `flossing teeth
+Amazon`},
+        daily:{emoji:'🏠',title:'Daily Activities',content:`flossing teeth
 untangling earbuds
 finding matching socks
 waiting for elevators
@@ -876,12 +867,8 @@ untangling Christmas lights
 remembering passwords
 loading dishwashers
 finding the end of tape rolls
-trying to sleep on airplanes`
-        },
-        niche: {
-          emoji: '🎯',
-          title: 'Niche Hobbies',
-          content: `competitive dog grooming
+trying to sleep on airplanes`},
+        niche:{emoji:'🎯',title:'Niche Hobbies',content:`competitive dog grooming
 medieval reenactment
 collecting vintage lunch boxes
 urban beekeeping
@@ -898,12 +885,8 @@ artisanal soap making
 geocaching
 bird watching
 stamp collecting
-competitive knitting`
-        },
-        social: {
-          emoji: '🎉',
-          title: 'Awkward Situations',
-          content: `first dates
+competitive knitting`},
+        social:{emoji:'🎉',title:'Awkward Situations',content:`first dates
 family reunions
 elevator small talk
 wedding speeches
@@ -920,12 +903,8 @@ neighborhood block parties
 high school reunions
 waiting rooms
 networking events
-office potlucks`
-        },
-        random: {
-          emoji: '🎲',
-          title: 'Random Objects',
-          content: `pool noodles
+office potlucks`},
+        random:{emoji:'🎲',title:'Random Objects',content:`pool noodles
 expired coupons
 gas station hot dogs
 airport security lines
@@ -943,8 +922,7 @@ sidewalk cracks
 USB cables
 expired milk
 lost socks
-paper clips`
-        }
+paper clips`}
       };
 
       let currentLeft = 'tech';
@@ -961,67 +939,15 @@ paper clips`
       const leftContent = document.getElementById('left-content');
       const rightContent= document.getElementById('right-content');
       const connectorEl = document.getElementById('connector');
+      const lmApply = document.getElementById('lm-apply');
+      const legacyApply = document.getElementById('applyBtn');
 
-      function updateFormulaDisplay() {
-        const leftLabel = leftName.textContent.trim();
-        connectorEl.textContent = leftLabel !== 'Tech Giants' ? 'meets' : 'but for';
+      function updateFormulaDisplay(){
+        // Keep original phrasing to avoid touching worker prompt logic
+        connectorEl.textContent = 'but for';
       }
 
-      function saveCustomList() {
-        ['left', 'right'].forEach(side => {
-          const title = (side==='left'?leftListTitle:rightListTitle).textContent;
-          const items = (side==='left'?leftContent:rightContent).querySelector('textarea')?.value || '';
-          if (title && items) {
-            localStorage.setItem(`${side}CustomList`, JSON.stringify({ title, items }));
-          }
-        });
-      }
-
-      function attachSyncOnInput() {
-        const lta = leftContent.querySelector('textarea');
-        const rta = rightContent.querySelector('textarea');
-        if (lta) lta.addEventListener('input', markDirtyAndSync);
-        if (rta) rta.addEventListener('input', markDirtyAndSync);
-      }
-
-      function updateList(side, categoryKey) {
-        if (categoryKey === 'custom') {
-          const titleEl = side === 'left' ? leftListTitle : rightListTitle;
-          const contentDiv = side === 'left' ? leftContent : rightContent;
-          titleEl.textContent = 'Name your list';
-          titleEl.contentEditable = true;
-          titleEl.focus();
-          contentDiv.innerHTML = `<textarea class="list-textarea" placeholder="Please enter 2-50 items"></textarea>`;
-          titleEl.addEventListener('blur', saveCustomList);
-          contentDiv.querySelector('textarea').addEventListener('blur', saveCustomList);
-          attachSyncOnInput();
-          markDirtyAndSync();
-          return;
-        }
-        const category = categories[categoryKey];
-        if (!category) return;
-
-        if (side === 'left') {
-          currentLeft = categoryKey;
-          leftEmoji.textContent = category.emoji;
-          leftName.textContent = category.title;
-          leftListEmoji.textContent = category.emoji;
-          leftListTitle.textContent = category.title;
-          leftContent.innerHTML = `<textarea class="list-textarea" id="left-list">${category.content}</textarea>`;
-        } else {
-          currentRight = categoryKey;
-          rightEmoji.textContent = category.emoji;
-          rightName.textContent = category.title;
-          rightListEmoji.textContent = category.emoji;
-          rightListTitle.textContent = category.title;
-          rightContent.innerHTML = `<textarea class="list-textarea" id="right-list">${category.content}</textarea>`;
-        }
-        updateFormulaDisplay();
-        attachSyncOnInput();
-        markDirtyAndSync();
-      }
-
-      function syncNewUIToLegacy() {
+      function syncNewUIToLegacy(){
         const xBox = document.getElementById('xListBox');
         const yBox = document.getElementById('yListBox');
         const lta = leftContent.querySelector('textarea');
@@ -1032,58 +958,123 @@ paper clips`
         yBox.value = yArr.join('\n');
       }
 
-      function markDirtyAndSync(){
-        const applyBtn = document.getElementById('applyBtn');
-        applyBtn.classList.add('dirty');
-        syncNewUIToLegacy();
-        if (typeof window.validateLists === 'function') window.validateLists();
+      function withinBounds(arr){
+        return arr.length >= MIN_ITEMS && arr.length <= MAX_ITEMS;
       }
 
-      // Dropdown wiring
-      document.querySelectorAll('#listManager .dropdown-option').forEach(option => {
-        option.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const category = option.getAttribute('data-category');
-          const selector = option.closest('.list-selector');
-          const side = selector.id.includes('left') ? 'left' : 'right';
-          updateList(side, category);
-          selector.classList.remove('open');
-          setTimeout(updateFormulaDisplay, 100);
+      // Keep both buttons in sync with validation
+      function updateApplyDisabled(){
+        const lta = leftContent.querySelector('textarea');
+        const rta = rightContent.querySelector('textarea');
+        const xArr = clean(lta ? lta.value : '');
+        const yArr = clean(rta ? rta.value : '');
+        const ok = withinBounds(xArr) && withinBounds(yArr);
+        lmApply.disabled = !ok;
+        legacyApply.disabled = !ok;
+        const err = document.getElementById('listsError');
+        err.textContent = ok ? '' : `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.`;
+        return ok;
+      }
+
+      function markDirtyAndSync(){
+        legacyApply.classList.add('dirty');
+        syncNewUIToLegacy();
+        // Update legacy arrays and validation without changing original logic
+        if (typeof window.getLists === 'function') window.getLists();
+        if (typeof window.validateLists === 'function') window.validateLists();
+        updateApplyDisabled();
+      }
+
+      function attachSyncOnInput(){
+        const lta = leftContent.querySelector('textarea');
+        const rta = rightContent.querySelector('textarea');
+        if (lta) lta.addEventListener('input', markDirtyAndSync);
+        if (rta) rta.addEventListener('input', markDirtyAndSync);
+      }
+
+      function saveCustomList(){
+        ['left','right'].forEach(side=>{
+          const title = (side==='left'?leftListTitle:rightListTitle).textContent;
+          const items = (side==='left'?leftContent:rightContent).querySelector('textarea')?.value || '';
+          if (title && items) {
+            localStorage.setItem(`${side}CustomList`, JSON.stringify({ title, items }));
+          }
         });
-      });
+      }
 
-      document.querySelectorAll('#listManager .current-category').forEach(button => {
-        button.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const selector = button.closest('.list-selector');
-          document.querySelectorAll('#listManager .list-selector').forEach(s => { if (s !== selector) s.classList.remove('open'); });
-          selector.classList.toggle('open');
-        });
-      });
-
-      document.addEventListener('click', () => {
-        document.querySelectorAll('#listManager .list-selector').forEach(selector => {
-          selector.classList.remove('open');
-        });
-      });
-
-      document.querySelectorAll('#listManager .dropdown-menu').forEach(menu => {
-        menu.addEventListener('click', (e) => { e.stopPropagation(); });
-      });
-
-      // New Apply button routes to legacy apply
-      document.getElementById('lm-apply').addEventListener('click', () => {
-        const legacyApply = document.getElementById('applyBtn');
+      function updateList(side, key){
+        if (key === 'custom'){
+          const titleEl = side==='left'?leftListTitle:rightListTitle;
+          const contentDiv = side==='left'?leftContent:rightContent;
+          titleEl.textContent = 'Name your list';
+          titleEl.contentEditable = true;
+          titleEl.focus();
+          contentDiv.innerHTML = `<textarea class="list-textarea" placeholder="Please enter 2-50 items"></textarea>`;
+          titleEl.addEventListener('blur', saveCustomList);
+          contentDiv.querySelector('textarea').addEventListener('blur', saveCustomList);
+          attachSyncOnInput();
+          markDirtyAndSync();
+          return;
+        }
+        const c = categories[key]; if (!c) return;
+        if (side === 'left'){
+          currentLeft = key;
+          leftEmoji.textContent = c.emoji;
+          leftName.textContent = c.title;
+          leftListEmoji.textContent = c.emoji;
+          leftListTitle.textContent = c.title;
+          leftContent.innerHTML = `<textarea class="list-textarea" id="left-list">${c.content}</textarea>`;
+        } else {
+          currentRight = key;
+          rightEmoji.textContent = c.emoji;
+          rightName.textContent = c.title;
+          rightListEmoji.textContent = c.emoji;
+          rightListTitle.textContent = c.title;
+          rightContent.innerHTML = `<textarea class="list-textarea" id="right-list">${c.content}</textarea>`;
+        }
+        updateFormulaDisplay();
+        attachSyncOnInput();
         markDirtyAndSync();
-        legacyApply.click();
+      }
+
+      // Dropdowns
+      document.querySelectorAll('#listManager .dropdown-option').forEach(opt=>{
+        opt.addEventListener('click', e=>{
+          e.stopPropagation();
+          const key = opt.getAttribute('data-category');
+          const selector = opt.closest('.list-selector');
+          const side = selector.id.includes('left') ? 'left' : 'right';
+          updateList(side, key);
+          selector.classList.remove('open');
+          setTimeout(updateFormulaDisplay, 0);
+        });
+      });
+      document.querySelectorAll('#listManager .current-category').forEach(btn=>{
+        btn.addEventListener('click', e=>{
+          e.stopPropagation();
+          const sel = btn.closest('.list-selector');
+          document.querySelectorAll('#listManager .list-selector').forEach(s=>{ if(s!==sel) s.classList.remove('open'); });
+          sel.classList.toggle('open');
+        });
+      });
+      document.addEventListener('click', ()=> {
+        document.querySelectorAll('#listManager .list-selector').forEach(s=> s.classList.remove('open'));
+      });
+      document.querySelectorAll('#listManager .dropdown-menu').forEach(m=>{
+        m.addEventListener('click', e=> e.stopPropagation());
       });
 
-      // Initial seed: ensure legacy lists reflect the new UI defaults and wheels redraw
+      // New Apply -> Legacy Apply, with validation enforced
+      lmApply.addEventListener('click', ()=>{
+        markDirtyAndSync();
+        if (updateApplyDisabled()) legacyApply.click();
+      });
+
+      // Initial sync so wheels reflect manager defaults, without touching summary flow
       updateFormulaDisplay();
       attachSyncOnInput();
-      syncNewUIToLegacy();
-      // Trigger one apply so wheels pick up new defaults immediately
-      document.getElementById('applyBtn').click();
+      markDirtyAndSync(); // sets textareas, validates, leaves Apply state correct
+      // Do not auto-click legacy apply here. User decides when to apply.
     })();
   </script>
 
@@ -1097,7 +1088,6 @@ paper clips`
       'Access-Control-Allow-Headers': 'Content-Type'
     };
 
-    // Handle OPTIONS preflight
     async function handleOptions(request) {
       if (request.headers.get('Origin') !== 'https://xfory.vercel.app') {
         return new Response(null, { status: 403 });
@@ -1105,12 +1095,10 @@ paper clips`
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Add to your worker handler:
     if (request.method === 'OPTIONS') {
       return handleOptions(request);
     }
 
-    // Add CORS headers to all responses
     const response = new Response(...);
     Object.entries(corsHeaders).forEach(([key, value]) => {
       response.headers.set(key, value);
@@ -1119,4 +1107,4 @@ paper clips`
   </script>
 </body>
 </html>
-
+```

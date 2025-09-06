@@ -264,6 +264,12 @@
     </div>
   </section>
 
+  <div class="lists-management" style="margin-top: 40px;">
+    <div class="lists-container">
+      <!-- Content from lists_mockup.html -->
+    </div>
+  </div>
+
   <div class="cta">
     <button id="spinBtnTop">Spin the wheels</button>
     <small>Let the wheels decide your next billion-dollar business.</small>
@@ -342,7 +348,7 @@ wine tasting</textarea>
   </section>
 
   <div class="actions">
-    <button id="applyBtn">Apply changes</button>
+    <button id="applyBtn" class="apply-button">Apply changes</button>
     <div id="listsError" style="color:#b42318; font-size:13px; margin:4px 0 12px 0; padding:4px; background:#fffaeb; border-radius:4px;"></div>
   </div>
 
@@ -529,7 +535,21 @@ wine tasting</textarea>
       });
     }
 
-    const applyBtn = document.getElementById('applyBtn');
+    const applyBtn = document.querySelector('.apply-button');
+    applyBtn.addEventListener('click', () => {
+      syncWheelsFromLists();
+      
+      // Show success feedback
+      const spinStatus = document.getElementById('spinStatus');
+      spinStatus.textContent = 'Lists updated!';
+      spinStatus.classList.add('show');
+      
+      setTimeout(() => {
+        spinStatus.textContent = '';
+        spinStatus.classList.remove('show');
+      }, 2000);
+    });
+
     const xBox = document.getElementById('xListBox');
     const yBox = document.getElementById('yListBox');
     const elBreakdown = document.getElementById('formulaBreakdown');
@@ -626,6 +646,82 @@ wine tasting</textarea>
     document.getElementById('spinBtnTop').addEventListener('click', spinBoth);
 
     getLists(); redraw();
+
+    const listsHTML = `
+      <div class="lists-management">
+        <div class="lists-container">
+          <div class="box">
+            <h3>Famous Apps that Changed Everything</h3>
+            <textarea id="xListBox">Tinder
+              Uber
+              Airbnb
+              Netflix
+              Spotify
+              Stripe
+              OnlyFans
+              Polymarket
+              Amazon
+              Reddit
+              Snapchat
+              Duolingo
+              Venmo
+              TikTok
+              LinkedIn
+              Discord</textarea>
+          </div>
+          <div class="box">
+            <h3>Industries ripe for disruption</h3>
+            <textarea id="yListBox">dog walking
+              gardening
+              dentistry
+              fishing trips
+              memes
+              fashion
+              3d printing
+              elder care
+              space tourism
+              tattoos
+              yoga retreats
+              pizza reviews
+              weddings
+              esports coaching
+              plant care
+              comic books
+              home brewing
+              pottery classes
+              wine tasting</textarea>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', listsHTML);
+
+    function updateWheelsFromLists() {
+      // Implementation to sync wheels with current lists
+      // Including formula change handling
+    }
+
+    function syncWheelsFromLists() {
+      // Get current lists
+      const leftItems = document.getElementById('xListBox').value.split('\n').filter(Boolean);
+      const rightItems = document.getElementById('yListBox').value.split('\n').filter(Boolean);
+      
+      // Update wheel items
+      xItems = leftItems;
+      yItems = rightItems;
+      
+      // Handle formula change
+      const leftName = document.getElementById('xListBox').value;
+      const connector = document.querySelector('.formula-text span:nth-child(3)');
+      connector.textContent = (leftName !== 'Tech Giants') ? " meets " : " but for ";
+      
+      // Redraw wheels
+      redraw();
+    }
+
+    xBox.addEventListener('input', syncWheelsFromLists);
+    yBox.addEventListener('input', syncWheelsFromLists);
   </script>
   <script>
     /* 

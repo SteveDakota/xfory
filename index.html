@@ -272,10 +272,7 @@
   <!-- HERO RESULT -->
   <section class="hero-section" id="hero">
     <div class="tagline"><span class="bulb">💡</span><span>Your next revolutionary idea is...</span></div>
-
-    <!-- Blue "Spinning" status. Hidden when not spinning -->
     <div class="main-idea" id="spinStatus" aria-live="polite"></div>
-
     <div class="formula">
       <div class="formula-text">
         <span>It's like</span>
@@ -285,16 +282,8 @@
       </div>
       <div class="formula-breakdown" id="formulaBreakdown">It's like Tinder, but for dentistry.</div>
     </div>
-
     <div class="hero-note" id="heroNote">Press the Spin button.</div>
-
-    <!-- Keep legacy result node for JS compatibility, but hide it -->
     <div id="result" class="visually-hidden">Click "Spin the wheels."</div>
-  </section>
-
-  <section class="card exec-summary">
-    <h2>Don't worry, your co-founder is AI.</h2>
-    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
   <div class="lists-intro">
@@ -349,6 +338,11 @@ wine tasting</textarea>
     <button id="applyBtn">Apply changes</button>
     <div id="listsError" style="color:#b42318; font-size:13px; margin:4px 0 12px 0; padding:4px; background:#fffaeb; border-radius:4px;"></div>
   </div>
+
+  <section class="card exec-summary" style="margin-top: 40px;">
+    <h2>Don't worry, your co-founder is AI.</h2>
+    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
+  </section>
 
   <section class="card sponsor">
     <h3>Sponsored By</h3>

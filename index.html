@@ -290,7 +290,7 @@
 
   <section class="card exec-summary">
     <h2>Don't worry, your co-founder is AI.</h2>
-    <div id="exec-summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
+    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
   <div class="lists-intro">
@@ -558,7 +558,13 @@ wine tasting</textarea>
 
     async function spinBoth(){
       if(!xItems.length || !yItems.length) return;
-      const summaryEl = document.getElementById('exec-summary');
+      const summaryEl = document.getElementById('summary');
+      const spinStatus = document.getElementById('spinStatus');
+
+      // Show blue "Spinning"
+      spinStatus.textContent = 'Spinning...';
+      spinStatus.classList.add('show');
+
       document.getElementById('result').textContent = 'Spinning...';
       summaryEl.classList.add('placeholder');
       summaryEl.textContent = 'Preparing summary...';
@@ -570,8 +576,21 @@ wine tasting</textarea>
 
       const x = xItems[choice.ix];
       const y = yItems[choice.iy];
+
+      // Update formula result
       document.getElementById('xPart').textContent = x;
       document.getElementById('yPart').textContent = y;
+      document.getElementById('formulaBreakdown').textContent = `It's like ${x}, but for ${y}.`;
+
+      // Legacy node
+      document.getElementById('result').textContent = `${x} for ${y}`;
+
+      // Hide spinning status
+      spinStatus.textContent = '';
+      spinStatus.classList.remove('show');
+
+      // Update note
+      document.getElementById('heroNote').textContent = "You're going to be rich!";
 
       try {
         const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {

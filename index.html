@@ -280,7 +280,7 @@
         <span>but for</span>
         <span class="y-part" id="yPart">dentistry</span>
       </div>
-      <div class="formula-breakdown" id="formulaBreakdown">It's like Tinder, but for dentistry.</div>
+      <div class="formula-breakdown" id="formulaBreakdown"></div>
     </div>
     <div class="hero-note" id="heroNote">Press the Spin button.</div>
     <div id="result" class="visually-hidden">Click "Spin the wheels."</div>
@@ -533,6 +533,7 @@ wine tasting</textarea>
     const applyBtn = document.getElementById('applyBtn');
     const xBox = document.getElementById('xListBox');
     const yBox = document.getElementById('yListBox');
+    const elBreakdown = document.getElementById('formulaBreakdown');
 
     xBox.addEventListener('input', () => {
       applyBtn.classList.add('dirty');
@@ -552,6 +553,7 @@ wine tasting</textarea>
       
       rotX=rotY=0; redraw();
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
+      elBreakdown.textContent = ''; // Clear breakdown text
       applyBtn.classList.remove('dirty');
       recentCombos.length = 0; lastX = lastY = -1;
     });
@@ -561,52 +563,61 @@ wine tasting</textarea>
       const summaryEl = document.getElementById('summary');
       const spinStatus = document.getElementById('spinStatus');
 
-      // Show blue "Spinning"
+      // show blue "Spinning"
       spinStatus.textContent = 'Spinning...';
       spinStatus.classList.add('show');
+      elBreakdown.textContent = ''; // keep empty during spin
 
-      document.getElementById('result').textContent = 'Spinning...';
       summaryEl.classList.add('placeholder');
       summaryEl.textContent = 'Preparing summary...';
 
       const choice = chooseNonRepeating(xItems.length, yItems.length);
-
       const xSpin = await spinOnce('wheelX', xItems, rotX, choice.ix); rotX = xSpin.rot;
       const ySpin = await spinOnce('wheelY', yItems, rotY, choice.iy); rotY = ySpin.rot;
 
       const x = xItems[choice.ix];
       const y = yItems[choice.iy];
 
-      // Update formula result
+      // update chips
       document.getElementById('xPart').textContent = x;
       document.getElementById('yPart').textContent = y;
-      document.getElementById('formulaBreakdown').textContent = `It's like ${x}, but for ${y}.`;
 
-      // Legacy node
+      // keep legacy node in sync
       document.getElementById('result').textContent = `${x} for ${y}`;
-
-      // Hide spinning status
-      spinStatus.textContent = '';
-      spinStatus.classList.remove('show');
-
-      // Update note
-      document.getElementById('heroNote').textContent = "You're going to be rich!";
 
       try {
         const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ app: x, niche: y })
+          body: JSON.stringify({ app: x, niche: y, wants_quip: true })
         });
         const data = await r.json();
+
+        // summary
         const parsed = marked.parse(data.summary || "No summary returned.");
         summaryEl.innerHTML = DOMPurify.sanitize(parsed);
         summaryEl.classList.remove("placeholder");
+
+        // NEW: witty line in the Result section
+        elBreakdown.textContent = data.quip || wittyFallback(x, y);
       } catch (e) {
         console.error('Summary fetch error:', e);
         summaryEl.textContent = `Failed to load summary. ${e.message}`;
         summaryEl.classList.add("placeholder");
+        elBreakdown.textContent = wittyFallback(x, y); // fallback quip
+      } finally {
+        spinStatus.textContent = '';
+        spinStatus.classList.remove('show');
       }
+
+      if (!hasSpun) {
+        document.getElementById('heroNote').textContent = "You're going to be rich!";
+        hasSpun = true;
+      }
+    }
+
+    function wittyFallback(x, y) {
+      return `${x} for ${y}. What could go wrong.`;
     }
 
     document.getElementById('spinBtnTop').addEventListener('click', spinBoth);

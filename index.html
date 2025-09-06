@@ -216,7 +216,7 @@
     .x-part:hover, .y-part:hover{ transform: rotate(-2deg) scale(1.03) }
     .y-part{
       transform: rotate(2deg);
-      background: linear-gradient(135deg, var(--grad-c), var(--grad-d));
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24); /* Exact gradient from redesign */
       box-shadow: 0 6px 20px rgba(255,107,107,.28);
     }
     .hero-note{
@@ -270,7 +270,7 @@
   </div>
 
   <!-- HERO RESULT -->
-  <section class="hero-section" id="hero">
+  <section class="hero-section" id="hero" style="margin-bottom: 24px;">
     <div class="tagline"><span class="bulb">💡</span><span>Your next revolutionary idea is...</span></div>
     <div class="main-idea" id="spinStatus" aria-live="polite"></div>
     <div class="formula">
@@ -286,7 +286,14 @@
     <div id="result" class="visually-hidden">Click "Spin the wheels."</div>
   </section>
 
-  <div class="lists-intro">
+  <!-- AI Summary -->
+  <section class="card exec-summary" style="margin: 24px 0;">
+    <h2>Don't worry, your co-founder is AI.</h2>
+    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
+  </section>
+
+  <!-- Lists section -->
+  <div class="lists-intro" style="margin-top: 24px;">
     <h2>Edit or create your own lists. Like Mad Libs, but for startups.</h2>
   </div>
 
@@ -338,11 +345,6 @@ wine tasting</textarea>
     <button id="applyBtn">Apply changes</button>
     <div id="listsError" style="color:#b42318; font-size:13px; margin:4px 0 12px 0; padding:4px; background:#fffaeb; border-radius:4px;"></div>
   </div>
-
-  <section class="card exec-summary" style="margin-top: 40px;">
-    <h2>Don't worry, your co-founder is AI.</h2>
-    <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
-  </section>
 
   <section class="card sponsor">
     <h3>Sponsored By</h3>

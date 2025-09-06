@@ -129,6 +129,7 @@
       transition: background .18s ease, transform .12s ease;
     }
     .actions button:hover{ transform: translateY(-1px) }
+    .actions button:active{ transform: translateY(0) scale(.99) }
     .actions button.dirty{ background: var(--accent) }
 
     .banner{
@@ -286,7 +287,11 @@ wine tasting</textarea>
       const xValid = xItems.length >= MIN_ITEMS && xItems.length <= MAX_ITEMS;
       const yValid = yItems.length >= MIN_ITEMS && yItems.length <= MAX_ITEMS;
       const isValid = xValid && yValid;
-      document.getElementById('applyBtn').disabled = !isValid;
+      
+      const applyBtn = document.getElementById('applyBtn');
+      applyBtn.disabled = !isValid;
+      applyBtn.classList.toggle('dirty', applyBtn.classList.contains('dirty') && !isValid);
+      
       document.getElementById('listsError').textContent = 
         isValid ? '' : `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.`;
       return isValid;

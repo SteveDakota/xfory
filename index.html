@@ -435,10 +435,13 @@ wine tasting</textarea>
     yBox.addEventListener('input', markDirty);
 
     document.getElementById('applyBtn').addEventListener('click', ()=>{
-      getLists(); rotX=0; rotY=0; redraw();
+      getLists();
+      if (!validateLists()) return;
+      document.getElementById('listsError').textContent = ''; // Clear error
+      rotX=rotY=0; redraw();
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
       applyBtn.classList.remove('dirty');
-      recentCombos.length = 0; lastX = -1; lastY = -1;
+      recentCombos.length = 0; lastX = lastY = -1;
     });
 
     async function spinBoth(){

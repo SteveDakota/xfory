@@ -283,9 +283,11 @@ wine tasting</textarea>
     }
 
     function validateLists() {
-      const ok = xItems.length >= MIN_ITEMS && yItems.length >= MIN_ITEMS;
-      document.getElementById('applyBtn').disabled = !ok;
-      return ok;
+      const xValid = xItems.length >= MIN_ITEMS && xItems.length <= MAX_ITEMS;
+      const yValid = yItems.length >= MIN_ITEMS && yItems.length <= MAX_ITEMS;
+      console.log('Validation:', {xValid, yValid, xLen: xItems.length, yLen: yItems.length});
+      document.getElementById('applyBtn').disabled = !(xValid && yValid);
+      return xValid && yValid;
     }
 
     function fitText(ctx, text, maxWidth, base){
@@ -433,13 +435,20 @@ wine tasting</textarea>
     yBox.addEventListener('input', markDirty);
 
     document.getElementById('applyBtn').addEventListener('click', ()=>{
+      console.log('Apply clicked - current lists:', {xItems, yItems});
       getLists();
+      console.log('After getLists:', {xItems, yItems});
+      
       const isValid = validateLists();
+      console.log('IsValid:', isValid);
+      
       document.getElementById('listsError').textContent = 
         isValid ? '' : `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.`;
+      console.log('Error message set to:', document.getElementById('listsError').textContent);
       
       if (!isValid) return;
       
+      console.log('Applying valid changes');
       rotX=rotY=0; redraw();
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
       applyBtn.classList.remove('dirty');

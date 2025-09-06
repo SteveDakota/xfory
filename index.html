@@ -244,6 +244,7 @@ wine tasting</textarea>
 
   <div class="actions">
     <button id="applyBtn">Apply changes</button>
+    <div id="listsError"></div>
   </div>
 
   <section class="card sponsor">
@@ -257,6 +258,18 @@ wine tasting</textarea>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 
   <script>
+    const MAX_ITEMS = 50, MIN_ITEMS = 2, MAX_LABEL = 60;
+
+    function cleanList(text) {
+      const seen = new Set();
+      return text.split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => s.slice(0, MAX_LABEL))
+        .filter(s => !seen.has(s) && seen.add(s))
+        .slice(0, MAX_ITEMS);
+    }
+
     let xItems=[], yItems=[];
     let rotX=0, rotY=0;
     let lastX = -1, lastY = -1;
@@ -264,9 +277,17 @@ wine tasting</textarea>
     const RECENT_LIMIT = 10;
 
     function getLists(){
-      const parse = t => t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-      xItems = parse(document.getElementById('xListBox').value);
-      yItems = parse(document.getElementById('yListBox').value);
+      xItems = cleanList(document.getElementById('xListBox').value);
+      yItems = cleanList(document.getElementById('yListBox').value);
+      validateLists();
+    }
+
+    function validateLists() {
+      const ok = xItems.length >= MIN_ITEMS && yItems.length >= MIN_ITEMS;
+      const msg = !ok ? `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.` : "";
+      document.getElementById('applyBtn').disabled = !ok;
+      document.getElementById('listsError').textContent = msg;
+      return ok;
     }
 
     function fitText(ctx, text, maxWidth, base){

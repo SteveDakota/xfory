@@ -284,9 +284,7 @@ wine tasting</textarea>
 
     function validateLists() {
       const ok = xItems.length >= MIN_ITEMS && yItems.length >= MIN_ITEMS;
-      const msg = !ok ? `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.` : "";
       document.getElementById('applyBtn').disabled = !ok;
-      document.getElementById('listsError').textContent = msg;
       return ok;
     }
 
@@ -436,12 +434,23 @@ wine tasting</textarea>
 
     document.getElementById('applyBtn').addEventListener('click', ()=>{
       getLists();
-      if (!validateLists()) return;
-      document.getElementById('listsError').textContent = ''; // Clear error
+      const isValid = validateLists();
+      document.getElementById('listsError').textContent = 
+        isValid ? '' : `Each list needs ${MIN_ITEMS}-${MAX_ITEMS} items.`;
+      
+      if (!isValid) return;
+      
       rotX=rotY=0; redraw();
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
       applyBtn.classList.remove('dirty');
       recentCombos.length = 0; lastX = lastY = -1;
+    });
+
+    ['xListBox', 'yListBox'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        getLists();
+        validateLists();
+      });
     });
 
     async function spinBoth(){

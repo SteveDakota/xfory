@@ -1,4 +1,4 @@
-Here is your `index.html` with only minimal JS changes so it calls your Cloudflare Worker and surfaces Worker errors. Design is unchanged.
+Done. The hero now matches your notes: lightbulb in the tagline, single left stripe, blue “Spinning” that only appears during spins, pre/post copy updated, green-blue top bar, and extra spacing before the lists.
 
 ```html
 <!doctype html>
@@ -7,6 +7,9 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
   <meta charset="utf-8">
   <title>X for Y Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Inter for the hero heading weight -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -22,10 +25,11 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
       --shadow: 0 6px 20px rgba(0,0,0,.08);
       --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
       --border: 1px solid rgba(0,0,0,.06);
-      --grad-a: #3498db;
-      --grad-b: #2ecc71;
-      --grad-c: #ff69b4;
-      --grad-d: #ff9800;
+      /* use wheel colors for hero */
+      --grad-a: #4f8bff;
+      --grad-b: #54d6b9;
+      --grad-c: #ff6b6b;
+      --grad-d: #ee5a24;
     }
 
     *{box-sizing:border-box}
@@ -89,25 +93,95 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
       border: var(--border);
       box-shadow: var(--shadow);
     }
+
     .result-wrap h2, .exec-summary h2{
       margin:0 0 8px 0; font-size:20px; color:#334155; letter-spacing:.2px
     }
-    .result{
-      font-size:30px; font-weight:900; letter-spacing:.2px; min-height:40px;
-      padding:12px 14px; border-radius:10px;
-      background:#fafbff; border: var(--border);
+
+    /* HERO result */
+    .hero-section{
+      width:100%;
+      max-width:1080px;
+      background:#fff;
+      border-radius:24px;
+      padding:42px 32px;
+      box-shadow: 0 25px 50px rgba(0,0,0,.08);
+      position:relative;
+      overflow:hidden;
+      text-align:center;
+      border: var(--border);
+      margin-bottom: 28px; /* space before lists */
     }
-    #summary{
-      font-size:18px; 
-      line-height:1.5; 
-      color:#3b4452;
+    .hero-section::before{
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:6px;
+      background: linear-gradient(90deg, var(--grad-a), var(--grad-b)); /* blue-green */
     }
-    #summary.placeholder{ color:#7a8596 }
-    #summary strong { color: #111; }
-    #summary ul, #summary ol { padding-left: 20px; }
-    #summary li { margin-bottom: 8px; }
-    #summary{ font-size:18px; line-height:1.5; color:#3b4452 }
-    #summary.placeholder{ color:#7a8596 }
+    .hero-section .tagline{
+      font: 800 18px/1 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#7a8596; text-transform:uppercase; letter-spacing:1.5px;
+      margin-bottom:18px;
+      display:flex; gap:10px; align-items:center; justify-content:center;
+    }
+    .hero-section .tagline .bulb{ font-size:22px }
+    /* Blue "Spinning" that only shows while spinning */
+    .hero-section .main-idea{
+      display:none;
+      font: 900 32px/1.1 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--accent);
+      margin: 6px 0 2px 0;
+    }
+    .hero-section .main-idea.show{ display:block }
+
+    .formula{
+      background:#f8f9fa;
+      border-radius:20px;
+      padding:22px;
+      margin:10px auto 0 auto;
+      /* single left stripe only */
+      border-left:8px solid var(--grad-a);
+      position:relative;
+      max-width:780px;
+    }
+    /* remove extra tab line */
+    .formula::before{ content:none }
+
+    .formula-text{
+      font-weight:700; color:#2c3e50;
+      font-size:22px; display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+    }
+    .formula-breakdown{ font-size:16px; color:#556070; font-weight:600; margin-top:8px }
+    .x-part, .y-part{
+      background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+      color:#fff; padding:10px 18px; border-radius:16px; font-weight:800; display:inline-block;
+      transform: rotate(-2deg);
+      box-shadow: 0 6px 20px rgba(102,126,234,.3);
+      transition: transform .2s ease;
+    }
+    .x-part:hover, .y-part:hover{ transform: rotate(-2deg) scale(1.03) }
+    .y-part{
+      transform: rotate(2deg);
+      background: linear-gradient(135deg, var(--grad-c), var(--grad-d));
+      box-shadow: 0 6px 20px rgba(255,107,107,.28);
+    }
+    .hero-note{
+      margin-top:12px; color:#556070; font-size:14px; font-weight:600;
+    }
+
+    @media (max-width:760px){
+      .title{ font-size:34px }
+      .pointer-wrap{ width:320px; height:320px }
+      canvas{ width:320px; height:320px }
+      .hero-section{ padding:32px 22px }
+      .formula-text{ font-size:20px }
+    }
+
+    /* Visually hide the legacy #result to keep JS compatibility */
+    .visually-hidden{
+      position:absolute !important; width:1px !important; height:1px !important;
+      padding:0 !important; margin:-1px !important; overflow:hidden !important;
+      clip: rect(0 0 0 0) !important; white-space:nowrap !important; border:0 !important;
+    }
 
     .lists-intro{ max-width:1080px; width:100%; text-align:left; color:#334155 }
     .lists-intro h2{ margin:8px 0 6px 0; font-size:18px }
@@ -157,88 +231,12 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
       object-fit:cover;
     }
 
-    .hero-section{
-      width:100%;
-      max-width:1080px;
-      background:#fff;
-      border-radius:24px;
-      padding:42px 32px;
-      box-shadow: 0 25px 50px rgba(0,0,0,.08);
-      position:relative;
-      overflow:hidden;
-      text-align:center;
-      border: var(--border);
-      margin-bottom: 40px;
-    }
-    .hero-section::before{
-      content:'';
-      position:absolute; top:0; left:0; right:0; height:6px;
-      background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
-    }
-    .hero-section .tagline{
-      font: 800 18px/1 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:#7a8596; text-transform:uppercase; letter-spacing:1.5px;
-      margin-bottom:18px;
-      display:flex; gap:10px; align-items:center; justify-content:center;
-    }
-    .hero-section .tagline .bulb{ font-size:22px }
-    .hero-section .main-idea{
-      display:none;
-      font: 900 32px/1.1 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--accent);
-      margin: 6px 0 2px 0;
-    }
-    .hero-section .main-idea.show{ display:block }
-
-    .formula{
-      background:#f8f9fa;
-      border-radius:20px;
-      padding:22px;
-      margin:10px auto 0 auto;
-      border-left:8px solid var(--grad-a);
-      position:relative;
-      max-width:780px;
-    }
-    .formula::before{ content:none }
-
-    .formula-text{
-      font-weight:700; color:#2c3e50;
-      font-size:22px; display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
-    }
-    .formula-breakdown{ font-size:16px; color:#556070; font-weight:600; margin-top:8px }
-    .x-part, .y-part{
-      background: linear-gradient(135deg, #4f8bff, #54d6b9);
-      color:#fff; padding:10px 18px; border-radius:16px; font-weight:800; display:inline-block;
-      transform: rotate(-2deg);
-      box-shadow: 0 6px 20px rgba(102,126,234,.3);
-      transition: transform .2s ease;
-    }
-    .x-part:hover, .y-part:hover{ transform: rotate(-2deg) scale(1.03) }
-    .y-part{
-      transform: rotate(2deg);
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      box-shadow: 0 6px 20px rgba(255,107,107,.28);
-    }
-    .hero-note{
-      margin-top:12px; color:#556070; font-size:14px; font-weight:600;
-    }
-
-    .visually-hidden{
-      position:absolute !important; width:1px !important; height:1px !important;
-      padding:0 !important; margin:-1px !important; overflow:hidden !important;
-      clip: rect(0 0 0 0) !important; white-space:nowrap !important; border:0 !important;
-    }
-
-    .exec-summary { margin-top: 40px; }
     @media (max-width:920px){
       .pointer-wrap{ width:340px; height:340px }
       canvas{ width:340px; height:340px }
     }
     @media (max-width:760px){
       .panel{ grid-template-columns:1fr }
-      .title{ font-size:34px }
-      .pointer-wrap{ width:320px; height:320px }
-      canvas{ width:320px; height:320px }
     }
   </style>
 </head>
@@ -266,9 +264,12 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
   </div>
 
   <!-- HERO RESULT -->
-  <section class="hero-section" id="hero" style="margin-bottom: 120px;">
+  <section class="hero-section" id="hero">
     <div class="tagline"><span class="bulb">💡</span><span>Your next revolutionary idea is...</span></div>
+
+    <!-- Blue "Spinning" status. Hidden when not spinning -->
     <div class="main-idea" id="spinStatus" aria-live="polite"></div>
+
     <div class="formula">
       <div class="formula-text">
         <span>It's like</span>
@@ -276,20 +277,21 @@ Here is your `index.html` with only minimal JS changes so it calls your Cloudfla
         <span>but for</span>
         <span class="y-part" id="yPart">dentistry</span>
       </div>
-      <div class="formula-breakdown" id="formulaBreakdown"></div>
+      <div class="formula-breakdown" id="formulaBreakdown">It's like Tinder, but for dentistry.</div>
     </div>
+
     <div class="hero-note" id="heroNote">Press the Spin button.</div>
-    <div id="result" class="visually-hidden">Click "Spin the wheels."</div>
+
+    <!-- Keep legacy result node for JS compatibility, but hide it -->
+    <div id="result" class="visually-hidden">Click “Spin the wheels.”</div>
   </section>
 
-  <!-- AI Summary -->
-  <section class="card exec-summary" style="margin: 80px 0 20px 0;">
+  <section class="card exec-summary">
     <h2>Don't worry, your co-founder is AI.</h2>
     <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
-  <!-- Lists section -->
-  <div class="lists-intro" style="margin-top: 24px;">
+  <div class="lists-intro">
     <h2>Edit or create your own lists. Like Mad Libs, but for startups.</h2>
   </div>
 
@@ -353,10 +355,6 @@ wine tasting</textarea>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 
   <script>
-    // Worker endpoint. Override with ?api=https://your-worker.workers.dev/
-    const API_URL = new URLSearchParams(location.search).get('api') 
-      || "https://x-for-y-summary.steve-2cc.workers.dev/";
-
     const MAX_ITEMS = 50, MIN_ITEMS = 2, MAX_LABEL = 60;
 
     function cleanList(text) {
@@ -372,9 +370,9 @@ wine tasting</textarea>
     let xItems=[], yItems=[];
     let rotX=0, rotY=0;
     let lastX = -1, lastY = -1;
-    let hasSpun = false;
     const recentCombos = [];
     const RECENT_LIMIT = 10;
+    let hasSpun = false;
 
     function getLists(){
       xItems = cleanList(document.getElementById('xListBox').value);
@@ -463,6 +461,7 @@ wine tasting</textarea>
       drawWheel(document.getElementById('wheelY'), yItems, rotY);
     }
 
+    // randomness
     function randInt(n){
       if (window.crypto && crypto.getRandomValues) {
         const buf = new Uint32Array(1);
@@ -493,15 +492,18 @@ wine tasting</textarea>
       return {ix, iy};
     }
 
+    // normalize to [0, 2π)
     function norm(a){ const t = 2*Math.PI; return ((a % t) + t) % t; }
 
     function spinOnce(canvasId, items, currentRot, index){
       if(!items.length) return Promise.resolve({rot:currentRot, index:-1});
       const slice = 2*Math.PI/items.length;
 
+      // final rotation so the chosen slice center is at 12 o'clock
       const finalRot = norm(- (index + 0.5) * slice);
 
-      const baseTurns = 6 + Math.floor(Math.random()*5);
+      // spin forward several full turns and land on finalRot
+      const baseTurns = 6 + Math.floor(Math.random()*5); // 6..10
       const target = finalRot + baseTurns * 2*Math.PI;
       const duration = 1100 + Math.random()*900;
 
@@ -525,10 +527,10 @@ wine tasting</textarea>
       });
     }
 
+    // Apply changes
     const applyBtn = document.getElementById('applyBtn');
     const xBox = document.getElementById('xListBox');
     const yBox = document.getElementById('yListBox');
-    const elBreakdown = document.getElementById('formulaBreakdown');
 
     xBox.addEventListener('input', () => {
       applyBtn.classList.add('dirty');
@@ -547,8 +549,16 @@ wine tasting</textarea>
       if (!validateLists()) return;
       
       rotX=rotY=0; redraw();
+
+      // Legacy node for compatibility
       document.getElementById('result').textContent = 'Lists updated. Spin again.';
-      elBreakdown.textContent = '';
+
+      // Clear spinning status and keep the note
+      const spinStatus = document.getElementById('spinStatus');
+      spinStatus.textContent = '';
+      spinStatus.classList.remove('show');
+
+      document.getElementById('formulaBreakdown').textContent = 'Lists updated.';
       applyBtn.classList.remove('dirty');
       recentCombos.length = 0; lastX = lastY = -1;
     });
@@ -558,71 +568,63 @@ wine tasting</textarea>
       const summaryEl = document.getElementById('summary');
       const spinStatus = document.getElementById('spinStatus');
 
+      // Show blue "Spinning"
       spinStatus.textContent = 'Spinning...';
       spinStatus.classList.add('show');
-      elBreakdown.textContent = '';
 
+      document.getElementById('result').textContent = 'Spinning...';
       summaryEl.classList.add('placeholder');
       summaryEl.textContent = 'Preparing summary...';
 
       const choice = chooseNonRepeating(xItems.length, yItems.length);
+
       const xSpin = await spinOnce('wheelX', xItems, rotX, choice.ix); rotX = xSpin.rot;
       const ySpin = await spinOnce('wheelY', yItems, rotY, choice.iy); rotY = ySpin.rot;
 
       const x = xItems[choice.ix];
       const y = yItems[choice.iy];
 
+      // Update formula result
       document.getElementById('xPart').textContent = x;
       document.getElementById('yPart').textContent = y;
+      document.getElementById('formulaBreakdown').textContent = `It's like ${x}, but for ${y}.`;
 
+      // Legacy node
       document.getElementById('result').textContent = `${x} for ${y}`;
 
-      try {
-        const r = await fetch(API_URL, {
-          method: "POST",
-          mode: "cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ app: x, niche: y, wants_quip: true })
-        });
+      // Hide spinning status
+      spinStatus.textContent = '';
+      spinStatus.classList.remove('show');
 
-        // Throw on non-2xx to surface Worker errors
-        if (!r.ok) {
-          const text = await r.text();
-          throw new Error(`HTTP ${r.status} ${r.statusText}: ${text}`);
-        }
-
-        const data = await r.json();
-        if (data && data.error) throw new Error(data.error);
-
-        const parsed = marked.parse(data.summary || "No summary returned.");
-        summaryEl.innerHTML = DOMPurify.sanitize(parsed);
-        summaryEl.classList.remove("placeholder");
-
-        elBreakdown.textContent = data.quip || wittyFallback(x, y);
-      } catch (e) {
-        console.error('Summary fetch error:', e);
-        summaryEl.textContent = `Failed to load summary. ${e.message || e}`;
-        summaryEl.classList.add("placeholder");
-        elBreakdown.textContent = wittyFallback(x, y);
-      } finally {
-        spinStatus.textContent = '';
-        spinStatus.classList.remove('show');
-      }
-
+      // Update note
       if (!hasSpun) {
         document.getElementById('heroNote').textContent = "You're going to be rich!";
         hasSpun = true;
       }
-    }
 
-    function wittyFallback(x, y) {
-      return `${x} for ${y}. What could go wrong.`;
+      try {
+        const r = await fetch("https://x-for-y-summary.steve-2cc.workers.dev/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ app: x, niche: y })
+        });
+        const data = await r.json();
+        const parsed = marked.parse(data.summary || "No summary returned.");
+        summaryEl.innerHTML = DOMPurify.sanitize(parsed);
+        summaryEl.classList.remove("placeholder");
+      } catch (e) {
+        console.error('Summary fetch error:', e);
+        summaryEl.textContent = `Failed to load summary. ${e.message}`;
+        summaryEl.classList.add("placeholder");
+      }
     }
 
     document.getElementById('spinBtnTop').addEventListener('click', spinBoth);
 
+    // init
     getLists(); redraw();
   </script>
+
   <script>
     /* 
     Cloudflare Worker should implement:

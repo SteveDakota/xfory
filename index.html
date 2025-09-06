@@ -245,6 +245,85 @@
       canvas{ width:320px; height:320px }
     }
   </style>
+
+  <!-- New list manager styles and legacy list UI hide -->
+  <style id="listManagerStyles">
+    .lists-intro, .panel, .actions { display: none !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    #listManager { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    #listManager .container { max-width: 1200px; margin: 0 auto; }
+    #listManager .header { text-align: center; margin-bottom: 48px; }
+    #listManager .title, #listManager .subtitle { color: #2c3e50; }
+    #listManager .title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+    #listManager .subtitle { font-size: 18px; font-weight: 600; }
+    #listManager .lists-container {
+      background: #fff; border-radius: 24px; padding: 40px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden; border: var(--border);
+    }
+    #listManager .lists-container::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+    }
+    #listManager .formula-display {
+      text-align: center; margin-bottom: 32px; padding: 24px; background: #f8f9fa;
+      border-radius: 16px; border: 2px solid #e9ecef;
+    }
+    #listManager .formula-text {
+      font-size: 24px; font-weight: 700; color: #2c3e50;
+      display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+    }
+    #listManager .list-selector { position: relative; display: inline-block; }
+    #listManager .current-category {
+      background: linear-gradient(135deg, #4f8bff, #54d6b9); color: white; padding: 10px 18px;
+      border-radius: 16px; font-weight: 800; box-shadow: 0 6px 20px rgba(102,126,234,.3);
+      border: none; display: flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    #listManager #right-selector .current-category {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24); box-shadow: 0 6px 20px rgba(255,107,107,.28);
+    }
+    #listManager .current-category:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,.4); }
+    #listManager .current-category::after { content: '▼'; font-size: 12px; transition: transform 0.3s ease; }
+    #listManager .list-selector.open .current-category::after { transform: rotate(180deg); }
+    #listManager .dropdown-menu {
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-10px);
+      margin-top: 8px; background: white; border: 2px solid #e9ecef; border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); min-width: 220px; z-index: 10; opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    #listManager .list-selector.open .dropdown-menu { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    #listManager .dropdown-option {
+      padding: 12px 16px; cursor: pointer; transition: background-color 0.2s ease;
+      display: flex; align-items: center; gap: 10px; font-weight: 600; color: #2c3e50;
+    }
+    #listManager .dropdown-option:hover { background: #f8f9fa; }
+    #listManager .dropdown-option:first-child { border-radius: 10px 10px 0 0; }
+    #listManager .dropdown-option:last-child { border-radius: 0 0 10px 10px; }
+    #listManager .lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    #listManager .list-section { background: #f8f9fa; border-radius: 20px; padding: 32px; border: 2px solid #e9ecef; position: relative; }
+    #listManager .list-header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    #listManager .list-info { display: flex; align-items: center; gap: 12px; }
+    #listManager .list-emoji { font-size: 24px; }
+    #listManager .list-title { font-size: 18px; font-weight: 800; color: #2c3e50; }
+    #listManager .list-textarea {
+      width: 100%; height: 350px; border: 2px solid #e9ecef; border-radius: 12px; padding: 16px;
+      font-family: 'Inter', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px; line-height: 1.8; resize: vertical; background: white; color: #2c3e50; transition: border-color 0.3s ease;
+    }
+    #listManager .list-textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    #listManager .apply-button {
+      background: #4f8bff; color: white; border: none; border-radius: 16px; padding: 18px 40px;
+      font-size: 18px; font-weight: 700; cursor: pointer; display: block; margin: 32px auto 0;
+      box-shadow: 0 8px 25px rgba(102,126,234,.3);
+    }
+    #listManager .apply-button:hover { background: #5a67d8; transform: translateY(-1px); }
+    @media (max-width: 768px) {
+      #listManager .lists-grid { grid-template-columns: 1fr; gap: 24px; }
+      #listManager .formula-text { font-size: 18px; flex-direction: column; gap: 12px; }
+      #listManager .title { font-size: 24px; }
+      #listManager .subtitle { font-size: 16px; }
+      #listManager .list-textarea { height: 300px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -263,12 +342,6 @@
       <canvas id="wheelY" width="720" height="720" aria-label="Industries wheel"></canvas>
     </div>
   </section>
-
-  <div class="lists-management" style="margin-top: 40px;">
-    <div class="lists-container">
-      <!-- Content from lists_mockup.html -->
-    </div>
-  </div>
 
   <div class="cta">
     <button id="spinBtnTop">Spin the wheels</button>
@@ -298,7 +371,7 @@
     <div id="summary" class="placeholder">An executive summary and business model will automatically be generated after you spin the wheels.</div>
   </section>
 
-  <!-- Lists section -->
+  <!-- Legacy Lists section (hidden by CSS but kept for wiring) -->
   <div class="lists-intro" style="margin-top: 24px;">
     <h2>Edit or create your own lists. Like Mad Libs, but for startups.</h2>
   </div>
@@ -348,9 +421,119 @@ wine tasting</textarea>
   </section>
 
   <div class="actions">
-    <button id="applyBtn" class="apply-button">Apply changes</button>
+    <button id="applyBtn">Apply changes</button>
     <div id="listsError" style="color:#b42318; font-size:13px; margin:4px 0 12px 0; padding:4px; background:#fffaeb; border-radius:4px;"></div>
   </div>
+
+  <!-- New List Manager UI -->
+  <section id="listManager">
+    <div class="container">
+      <div class="header">
+        <h1 class="title">Edit or create your own lists</h1>
+        <p class="subtitle">Like Mad Libs, but for startups</p>
+      </div>
+      
+      <div class="lists-container">
+        <div class="formula-display">
+          <div class="formula-text">
+            <span>It's like</span>
+            <div class="list-selector" id="left-selector">
+              <div class="current-category">
+                <span id="left-emoji">🏢</span>
+                <span id="left-name">Tech Giants</span>
+              </div>
+              <div class="dropdown-menu">
+                <div class="dropdown-option" data-category="tech"><span>🏢</span> Tech Giants</div>
+                <div class="dropdown-option" data-category="daily"><span>🏠</span> Daily Activities</div>
+                <div class="dropdown-option" data-category="niche"><span>🎯</span> Niche Hobbies</div>
+                <div class="dropdown-option" data-category="social"><span>🎉</span> Awkward Situations</div>
+                <div class="dropdown-option" data-category="random"><span>🎲</span> Random Objects</div>
+                <div class="dropdown-option" data-category="custom"><span>✨</span> Create Your Own</div>
+              </div>
+            </div>
+            <span id="connector">but for</span>
+            <div class="list-selector" id="right-selector">
+              <div class="current-category">
+                <span id="right-emoji">🏠</span>
+                <span id="right-name">Daily Activities</span>
+              </div>
+              <div class="dropdown-menu">
+                <div class="dropdown-option" data-category="tech"><span>🏢</span> Tech Giants</div>
+                <div class="dropdown-option" data-category="daily"><span>🏠</span> Daily Activities</div>
+                <div class="dropdown-option" data-category="niche"><span>🎯</span> Niche Hobbies</div>
+                <div class="dropdown-option" data-category="social"><span>🎉</span> Awkward Situations</div>
+                <div class="dropdown-option" data-category="random"><span>🎲</span> Random Objects</div>
+                <div class="dropdown-option" data-category="custom"><span>✨</span> Create Your Own</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="lists-grid">
+          <div class="list-section">
+            <div class="list-header">
+              <div class="list-info">
+                <span class="list-emoji" id="left-list-emoji">🏢</span>
+                <h3 class="list-title" id="left-list-title">Tech Giants</h3>
+              </div>
+            </div>
+            <div id="left-content">
+              <textarea class="list-textarea" id="left-list">Uber
+Airbnb
+Netflix
+TikTok
+Zoom
+LinkedIn
+OnlyFans
+Robinhood
+Spotify
+Instagram
+Venmo
+Slack
+Discord
+Shopify
+PayPal
+Tinder
+YouTube
+WhatsApp
+Snapchat
+Amazon</textarea>
+            </div>
+          </div>
+          
+          <div class="list-section">
+            <div class="list-header">
+              <div class="list-info">
+                <span class="list-emoji" id="right-list-emoji">🏠</span>
+                <h3 class="list-title" id="right-list-title">Daily Activities</h3>
+              </div>
+            </div>
+            <div id="right-content">
+              <textarea class="list-textarea" id="right-list">flossing teeth
+untangling earbuds
+finding matching socks
+waiting for elevators
+microwaving leftovers
+parallel parking
+assembling IKEA furniture
+losing TV remotes
+charging dead phones
+taking out trash
+folding fitted sheets
+opening pickle jars
+untangling Christmas lights
+remembering passwords
+loading dishwashers
+finding the end of tape rolls
+trying to sleep on airplanes</textarea>
+            </div>
+          </div>
+        </div>
+        
+        <button class="apply-button" id="lm-apply">Apply Changes</button>
+      </div>
+    </div>
+  </section>
 
   <section class="card sponsor">
     <h3>Sponsored By</h3>
@@ -535,21 +718,7 @@ wine tasting</textarea>
       });
     }
 
-    const applyBtn = document.querySelector('.apply-button');
-    applyBtn.addEventListener('click', () => {
-      syncWheelsFromLists();
-      
-      // Show success feedback
-      const spinStatus = document.getElementById('spinStatus');
-      spinStatus.textContent = 'Lists updated!';
-      spinStatus.classList.add('show');
-      
-      setTimeout(() => {
-        spinStatus.textContent = '';
-        spinStatus.classList.remove('show');
-      }, 2000);
-    });
-
+    const applyBtn = document.getElementById('applyBtn');
     const xBox = document.getElementById('xListBox');
     const yBox = document.getElementById('yListBox');
     const elBreakdown = document.getElementById('formulaBreakdown');
@@ -646,83 +815,278 @@ wine tasting</textarea>
     document.getElementById('spinBtnTop').addEventListener('click', spinBoth);
 
     getLists(); redraw();
-
-    const listsHTML = `
-      <div class="lists-management">
-        <div class="lists-container">
-          <div class="box">
-            <h3>Famous Apps that Changed Everything</h3>
-            <textarea id="xListBox">Tinder
-              Uber
-              Airbnb
-              Netflix
-              Spotify
-              Stripe
-              OnlyFans
-              Polymarket
-              Amazon
-              Reddit
-              Snapchat
-              Duolingo
-              Venmo
-              TikTok
-              LinkedIn
-              Discord</textarea>
-          </div>
-          <div class="box">
-            <h3>Industries ripe for disruption</h3>
-            <textarea id="yListBox">dog walking
-              gardening
-              dentistry
-              fishing trips
-              memes
-              fashion
-              3d printing
-              elder care
-              space tourism
-              tattoos
-              yoga retreats
-              pizza reviews
-              weddings
-              esports coaching
-              plant care
-              comic books
-              home brewing
-              pottery classes
-              wine tasting</textarea>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', listsHTML);
-
-    function updateWheelsFromLists() {
-      // Implementation to sync wheels with current lists
-      // Including formula change handling
-    }
-
-    function syncWheelsFromLists() {
-      // Get current lists
-      const leftItems = document.getElementById('xListBox').value.split('\n').filter(Boolean);
-      const rightItems = document.getElementById('yListBox').value.split('\n').filter(Boolean);
-      
-      // Update wheel items
-      xItems = leftItems;
-      yItems = rightItems;
-      
-      // Handle formula change
-      const leftName = document.getElementById('xListBox').value;
-      const connector = document.querySelector('.formula-text span:nth-child(3)');
-      connector.textContent = (leftName !== 'Tech Giants') ? " meets " : " but for ";
-      
-      // Redraw wheels
-      redraw();
-    }
-
-    xBox.addEventListener('input', syncWheelsFromLists);
-    yBox.addEventListener('input', syncWheelsFromLists);
   </script>
+
+  <!-- Integration script wiring new list manager to legacy wheels -->
+  <script>
+    (function(){
+      const MAX_LABEL = 60, MAX_ITEMS = 50;
+      const clean = window.cleanList || function(text){
+        const seen = new Set();
+        return String(text || '')
+          .split(/\r?\n/)
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map(s => s.slice(0, MAX_LABEL))
+          .filter(s => !seen.has(s) && seen.add(s))
+          .slice(0, MAX_ITEMS);
+      };
+
+      const categories = {
+        tech: {
+          emoji: '🏢',
+          title: 'Tech Giants',
+          content: `Uber
+Airbnb
+Netflix
+TikTok
+Zoom
+LinkedIn
+OnlyFans
+Robinhood
+Spotify
+Instagram
+Venmo
+Slack
+Discord
+Shopify
+PayPal
+Tinder
+YouTube
+WhatsApp
+Snapchat
+Amazon`
+        },
+        daily: {
+          emoji: '🏠',
+          title: 'Daily Activities',
+          content: `flossing teeth
+untangling earbuds
+finding matching socks
+waiting for elevators
+microwaving leftovers
+parallel parking
+assembling IKEA furniture
+losing TV remotes
+charging dead phones
+taking out trash
+folding fitted sheets
+opening pickle jars
+untangling Christmas lights
+remembering passwords
+loading dishwashers
+finding the end of tape rolls
+trying to sleep on airplanes`
+        },
+        niche: {
+          emoji: '🎯',
+          title: 'Niche Hobbies',
+          content: `competitive dog grooming
+medieval reenactment
+collecting vintage lunch boxes
+urban beekeeping
+competitive eating
+adult coloring books
+train spotting
+competitive Scrabble
+model airplane building
+extreme couponing
+mushroom foraging
+vintage typewriter collecting
+competitive Jenga
+artisanal soap making
+geocaching
+bird watching
+stamp collecting
+competitive knitting`
+        },
+        social: {
+          emoji: '🎉',
+          title: 'Awkward Situations',
+          content: `first dates
+family reunions
+elevator small talk
+wedding speeches
+DMV visits
+parent-teacher conferences
+office bathroom encounters
+grocery store checkout lines
+airplane armrest negotiations
+group photos
+karaoke nights
+blind dates
+work happy hours
+neighborhood block parties
+high school reunions
+waiting rooms
+networking events
+office potlucks`
+        },
+        random: {
+          emoji: '🎲',
+          title: 'Random Objects',
+          content: `pool noodles
+expired coupons
+gas station hot dogs
+airport security lines
+self-checkout machines
+parking meters
+fortune cookies
+traffic cones
+bubble wrap
+rubber ducks
+shopping cart wheels
+automatic doors
+revolving doors
+vending machines
+sidewalk cracks
+USB cables
+expired milk
+lost socks
+paper clips`
+        }
+      };
+
+      let currentLeft = 'tech';
+      let currentRight = 'daily';
+
+      const leftEmoji = document.getElementById('left-emoji');
+      const leftName  = document.getElementById('left-name');
+      const rightEmoji= document.getElementById('right-emoji');
+      const rightName = document.getElementById('right-name');
+      const leftListEmoji = document.getElementById('left-list-emoji');
+      const leftListTitle = document.getElementById('left-list-title');
+      const rightListEmoji= document.getElementById('right-list-emoji');
+      const rightListTitle= document.getElementById('right-list-title');
+      const leftContent = document.getElementById('left-content');
+      const rightContent= document.getElementById('right-content');
+      const connectorEl = document.getElementById('connector');
+
+      function updateFormulaDisplay() {
+        const leftLabel = leftName.textContent.trim();
+        connectorEl.textContent = leftLabel !== 'Tech Giants' ? 'meets' : 'but for';
+      }
+
+      function saveCustomList() {
+        ['left', 'right'].forEach(side => {
+          const title = (side==='left'?leftListTitle:rightListTitle).textContent;
+          const items = (side==='left'?leftContent:rightContent).querySelector('textarea')?.value || '';
+          if (title && items) {
+            localStorage.setItem(`${side}CustomList`, JSON.stringify({ title, items }));
+          }
+        });
+      }
+
+      function attachSyncOnInput() {
+        const lta = leftContent.querySelector('textarea');
+        const rta = rightContent.querySelector('textarea');
+        if (lta) lta.addEventListener('input', markDirtyAndSync);
+        if (rta) rta.addEventListener('input', markDirtyAndSync);
+      }
+
+      function updateList(side, categoryKey) {
+        if (categoryKey === 'custom') {
+          const titleEl = side === 'left' ? leftListTitle : rightListTitle;
+          const contentDiv = side === 'left' ? leftContent : rightContent;
+          titleEl.textContent = 'Name your list';
+          titleEl.contentEditable = true;
+          titleEl.focus();
+          contentDiv.innerHTML = `<textarea class="list-textarea" placeholder="Please enter 2-50 items"></textarea>`;
+          titleEl.addEventListener('blur', saveCustomList);
+          contentDiv.querySelector('textarea').addEventListener('blur', saveCustomList);
+          attachSyncOnInput();
+          markDirtyAndSync();
+          return;
+        }
+        const category = categories[categoryKey];
+        if (!category) return;
+
+        if (side === 'left') {
+          currentLeft = categoryKey;
+          leftEmoji.textContent = category.emoji;
+          leftName.textContent = category.title;
+          leftListEmoji.textContent = category.emoji;
+          leftListTitle.textContent = category.title;
+          leftContent.innerHTML = `<textarea class="list-textarea" id="left-list">${category.content}</textarea>`;
+        } else {
+          currentRight = categoryKey;
+          rightEmoji.textContent = category.emoji;
+          rightName.textContent = category.title;
+          rightListEmoji.textContent = category.emoji;
+          rightListTitle.textContent = category.title;
+          rightContent.innerHTML = `<textarea class="list-textarea" id="right-list">${category.content}</textarea>`;
+        }
+        updateFormulaDisplay();
+        attachSyncOnInput();
+        markDirtyAndSync();
+      }
+
+      function syncNewUIToLegacy() {
+        const xBox = document.getElementById('xListBox');
+        const yBox = document.getElementById('yListBox');
+        const lta = leftContent.querySelector('textarea');
+        const rta = rightContent.querySelector('textarea');
+        const xArr = clean(lta ? lta.value : '');
+        const yArr = clean(rta ? rta.value : '');
+        xBox.value = xArr.join('\n');
+        yBox.value = yArr.join('\n');
+      }
+
+      function markDirtyAndSync(){
+        const applyBtn = document.getElementById('applyBtn');
+        applyBtn.classList.add('dirty');
+        syncNewUIToLegacy();
+        if (typeof window.validateLists === 'function') window.validateLists();
+      }
+
+      // Dropdown wiring
+      document.querySelectorAll('#listManager .dropdown-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const category = option.getAttribute('data-category');
+          const selector = option.closest('.list-selector');
+          const side = selector.id.includes('left') ? 'left' : 'right';
+          updateList(side, category);
+          selector.classList.remove('open');
+          setTimeout(updateFormulaDisplay, 100);
+        });
+      });
+
+      document.querySelectorAll('#listManager .current-category').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const selector = button.closest('.list-selector');
+          document.querySelectorAll('#listManager .list-selector').forEach(s => { if (s !== selector) s.classList.remove('open'); });
+          selector.classList.toggle('open');
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('#listManager .list-selector').forEach(selector => {
+          selector.classList.remove('open');
+        });
+      });
+
+      document.querySelectorAll('#listManager .dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', (e) => { e.stopPropagation(); });
+      });
+
+      // New Apply button routes to legacy apply
+      document.getElementById('lm-apply').addEventListener('click', () => {
+        const legacyApply = document.getElementById('applyBtn');
+        markDirtyAndSync();
+        legacyApply.click();
+      });
+
+      // Initial seed: ensure legacy lists reflect the new UI defaults and wheels redraw
+      updateFormulaDisplay();
+      attachSyncOnInput();
+      syncNewUIToLegacy();
+      // Trigger one apply so wheels pick up new defaults immediately
+      document.getElementById('applyBtn').click();
+    })();
+  </script>
+
   <script>
     /* 
     Cloudflare Worker should implement:
@@ -755,3 +1119,4 @@ wine tasting</textarea>
   </script>
 </body>
 </html>
+

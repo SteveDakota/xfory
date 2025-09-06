@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Idea Lists Interface</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .title, .subtitle {
+            color: #2c3e50;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .lists-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .lists-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+        }
+        
+        .formula-display {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .formula-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .list-selector {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .current-category {
+            background: linear-gradient(135deg, #4f8bff, #54d6b9);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 16px;
+            font-weight: 800;
+            box-shadow: 0 6px 20px rgba(102,126,234,.3);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .current-category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,.4);
+        }
+        
+        .current-category::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .list-selector.open .current-category::after {
+            transform: rotate(180deg);
+        }
+        
+        #right-selector .current-category {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 6px 20px rgba(255,107,107,.28);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .list-selector.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .dropdown-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .dropdown-option:hover {
+            background: #f8f9fa;
+        }
+        
+        .dropdown-option:first-child {
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .dropdown-option:last-child {
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .lists-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        
+        .list-section {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 32px;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+        
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .list-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .list-emoji {
+            font-size: 24px;
+        }
+        
+        .list-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        
+        .swap-button {
+            display: none;
+        }
+        
+        .list-textarea {
+            width: 100%;
+            height: 350px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Inter', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            resize: vertical;
+            background: white;
+            color: #2c3e50;
+            transition: border-color 0.3s ease;
+        }
+        
+        .list-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .nsfw-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 350px;
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            padding: 32px;
+        }
+        
+        .apply-button {
+            background: #4f8bff;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            margin: 32px auto 0;
+            box-shadow: 0 8px 25px rgba(102,126,234,.3);
+        }
+        
+        .apply-button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .lists-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .formula-text {
+                font-size: 18px;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .list-textarea {
+                height: 300px;
+            }
+            
+            .nsfw-placeholder {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Edit or create your own lists</h1>
+            <p class="subtitle">Like Mad Libs, but for startups</p>
+        </div>
+        
+        <div class="lists-container">
+            <div class="formula-display">
+                <div class="formula-text">
+                    <span>It's like</span>
+                    <div class="list-selector" id="left-selector">
+                        <div class="current-category">
+                            <span id="left-emoji">🏢</span>
+                            <span id="left-name">Tech Giants</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-option" data-category="tech">
+                                <span>🏢</span> Tech Giants
+                            </div>
+                            <div class="dropdown-option" data-category="daily">
+                                <span>🏠</span> Daily Activities
+                            </div>
+                            <div class="dropdown-option" data-category="niche">
+                                <span>🎯</span> Niche Hobbies
+                            </div>
+                            <div class="dropdown-option" data-category="social">
+                                <span>🎉</span> Awkward Situations
+                            </div>
+                            <div class="dropdown-option" data-category="random">
+                                <span>🎲</span> Random Objects
+                            </div>
+                            <div class="dropdown-option" data-category="custom">
+                                <span>✨</span> Create Your Own
+                            </div>
+                        </div>
+                    </div>
+                    <span id="connector">but for</span>
+                    <div class="list-selector" id="right-selector">
+                        <div class="current-category">
+                            <span id="right-emoji">🏠</span>
+                            <span id="right-name">Daily Activities</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-option" data-category="tech">
+                                <span>🏢</span> Tech Giants
+                            </div>
+                            <div class="dropdown-option" data-category="daily">
+                                <span>🏠</span> Daily Activities
+                            </div>
+                            <div class="dropdown-option" data-category="niche">
+                                <span>🎯</span> Niche Hobbies
+                            </div>
+                            <div class="dropdown-option" data-category="social">
+                                <span>🎉</span> Awkward Situations
+                            </div>
+                            <div class="dropdown-option" data-category="random">
+                                <span>🎲</span> Random Objects
+                            </div>
+                            <div class="dropdown-option" data-category="custom">
+                                <span>✨</span> Create Your Own
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lists-grid">
+                <div class="list-section">
+                    <div class="list-header">
+                        <div class="list-info">
+                            <span class="list-emoji" id="left-list-emoji">🏢</span>
+                            <h3 class="list-title" id="left-list-title">Tech Giants</h3>
+                        </div>
+                    </div>
+                    <div id="left-content">
+                        <textarea class="list-textarea" id="left-list">Uber
+Airbnb
+Netflix
+TikTok
+Zoom
+LinkedIn
+OnlyFans
+Robinhood
+Spotify
+Instagram
+Venmo
+Slack
+Discord
+Shopify
+PayPal
+Tinder
+YouTube
+WhatsApp
+Snapchat
+Amazon</textarea>
+                    </div>
+                </div>
+                
+                <div class="list-section">
+                    <div class="list-header">
+                        <div class="list-info">
+                            <span class="list-emoji" id="right-list-emoji">🏠</span>
+                            <h3 class="list-title" id="right-list-title">Daily Activities</h3>
+                        </div>
+                    </div>
+                    <div id="right-content">
+                        <textarea class="list-textarea" id="right-list">flossing teeth
+untangling earbuds
+finding matching socks
+waiting for elevators
+microwaving leftovers
+parallel parking
+assembling IKEA furniture
+losing TV remotes
+charging dead phones
+taking out trash
+folding fitted sheets
+opening pickle jars
+untangling Christmas lights
+remembering passwords
+loading dishwashers
+finding the end of tape rolls
+trying to sleep on airplanes</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="apply-button">Apply Changes</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = {
+            tech: {
+                emoji: '🏢',
+                title: 'Tech Giants',
+                content: `Uber
+Airbnb
+Netflix
+TikTok
+Zoom
+LinkedIn
+OnlyFans
+Robinhood
+Spotify
+Instagram
+Venmo
+Slack
+Discord
+Shopify
+PayPal
+Tinder
+YouTube
+WhatsApp
+Snapchat
+Amazon`
+            },
+            daily: {
+                emoji: '🏠',
+                title: 'Daily Activities',
+                content: `flossing teeth
+untangling earbuds
+finding matching socks
+waiting for elevators
+microwaving leftovers
+parallel parking
+assembling IKEA furniture
+losing TV remotes
+charging dead phones
+taking out trash
+folding fitted sheets
+opening pickle jars
+untangling Christmas lights
+remembering passwords
+loading dishwashers
+finding the end of tape rolls
+trying to sleep on airplanes`
+            },
+            niche: {
+                emoji: '🎯',
+                title: 'Niche Hobbies',
+                content: `competitive dog grooming
+medieval reenactment
+collecting vintage lunch boxes
+urban beekeeping
+competitive eating
+adult coloring books
+train spotting
+competitive Scrabble
+model airplane building
+extreme couponing
+mushroom foraging
+vintage typewriter collecting
+competitive Jenga
+artisanal soap making
+geocaching
+bird watching
+stamp collecting
+competitive knitting`
+            },
+            social: {
+                emoji: '🎉',
+                title: 'Awkward Situations',
+                content: `first dates
+family reunions
+elevator small talk
+wedding speeches
+DMV visits
+parent-teacher conferences
+office bathroom encounters
+grocery store checkout lines
+airplane armrest negotiations
+group photos
+karaoke nights
+blind dates
+work happy hours
+neighborhood block parties
+high school reunions
+waiting rooms
+networking events
+office potlucks`
+            },
+            random: {
+                emoji: '🎲',
+                title: 'Random Objects',
+                content: `pool noodles
+expired coupons
+gas station hot dogs
+airport security lines
+self-checkout machines
+parking meters
+fortune cookies
+traffic cones
+bubble wrap
+rubber ducks
+shopping cart wheels
+automatic doors
+revolving doors
+vending machines
+sidewalk cracks
+USB cables
+expired milk
+lost socks
+paper clips`
+            }
+        };
+
+        let currentLeft = 'tech';
+        let currentRight = 'daily';
+
+        // Update formula display based on selected list
+        function updateFormulaDisplay() {
+            const leftName = document.getElementById('left-name').textContent;
+            const connector = document.getElementById('connector');
+            
+            if (leftName !== 'Tech Giants') {
+                connector.textContent = " meets ";
+                /* 
+                 * Note: In index.html this would require:
+                 * 1. Updating the formula line in Results section
+                 * 2. Adjusting wheel display logic to match new format
+                 * 3. Possibly updating the AI prompt in worker.js
+                 */
+            } else {
+                connector.textContent = " but for ";
+            }
+        }
+
+        function updateList(side, categoryKey) {
+            const category = categories[categoryKey];
+            
+            if (categoryKey === 'custom') {
+                const titleEl = side === 'left' ? 
+                  document.getElementById('left-list-title') : 
+                  document.getElementById('right-list-title');
+                const contentDiv = side === 'left' ? 
+                  document.getElementById('left-content') : 
+                  document.getElementById('right-content');
+                
+                // Set default text and make editable
+                titleEl.textContent = "Name your list";
+                titleEl.contentEditable = true;
+                titleEl.focus();
+                
+                // Set up empty list
+                contentDiv.innerHTML = `
+                  <textarea class="list-textarea" placeholder="Please enter 2-50 items"></textarea>
+                `;
+                
+                // Save to localStorage when edited
+                titleEl.addEventListener('blur', saveCustomList);
+                contentDiv.querySelector('textarea').addEventListener('blur', saveCustomList);
+            } else if (category) {
+                if (side === 'left') {
+                    currentLeft = categoryKey;
+                    document.getElementById('left-emoji').textContent = category.emoji;
+                    document.getElementById('left-name').textContent = category.title;
+                    document.getElementById('left-list-emoji').textContent = category.emoji;
+                    document.getElementById('left-list-title').textContent = category.title;
+                    
+                    document.getElementById('left-content').innerHTML = `<textarea class="list-textarea" id="left-list">${category.content}</textarea>`;
+                    
+                    updateFormulaDisplay();
+                } else {
+                    currentRight = categoryKey;
+                    document.getElementById('right-emoji').textContent = category.emoji;
+                    document.getElementById('right-name').textContent = category.title;
+                    document.getElementById('right-list-emoji').textContent = category.emoji;
+                    document.getElementById('right-list-title').textContent = category.title;
+                    
+                    document.getElementById('right-content').innerHTML = `<textarea class="list-textarea" id="right-list">${category.content}</textarea>`;
+                }
+            }
+        }
+
+        function saveCustomList() {
+            // Save both left and right custom lists
+            ['left', 'right'].forEach(side => {
+                const title = document.getElementById(`${side}-list-title`).textContent;
+                const items = document.getElementById(`${side}-content`).querySelector('textarea')?.value || '';
+                
+                if (title && items) {
+                    localStorage.setItem(`${side}CustomList`, JSON.stringify({
+                        title,
+                        items
+                    }));
+                }
+            });
+        }
+
+        function openSelector(side) {
+            const selector = document.getElementById(side + '-selector');
+            // Close any other open selectors
+            document.querySelectorAll('.list-selector').forEach(s => {
+                if (s !== selector) s.classList.remove('open');
+            });
+            selector.classList.toggle('open');
+        }
+
+        // Add click listeners to dropdown options
+        document.querySelectorAll('.dropdown-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = option.getAttribute('data-category');
+                const selector = option.closest('.list-selector');
+                const side = selector.id.includes('left') ? 'left' : 'right';
+                
+                updateList(side, category);
+                selector.classList.remove('open');
+                
+                setTimeout(updateFormulaDisplay, 100); // Small delay to allow DOM update
+            });
+        });
+
+        // Add click listeners to current category buttons
+        document.querySelectorAll('.current-category').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const selector = button.closest('.list-selector');
+                openSelector(selector.id.replace('-selector', ''));
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.list-selector').forEach(selector => {
+                selector.classList.remove('open');
+            });
+        });
+
+        // Prevent dropdown from closing when clicking inside
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+        
+        // Replace NSFW option in both dropdown menus
+        document.querySelectorAll('.dropdown-option.nsfw').forEach(option => {
+          option.innerHTML = '<span>✨</span> Create Your Own';
+          option.setAttribute('data-category', 'custom');
+          option.classList.remove('nsfw');
+        });
+        
+        updateFormulaDisplay();
+    </script>
+</body>
+</html>
